@@ -71,30 +71,80 @@ def index_exists(list, index):
         return False
 
 
-def take_index(index, current_amount, max_amount, original_combination = []):  
+def take_index(index, list_of_costs, current_amount, max_amount, original_combination = [], total_combinations = []):  
+    # (après 1er commit) CE qu'il faut maintenant implanter, c'est que quand on arrive à la fin d'une combinaison
+    # si il y a plusieurs index dans cette combinaison (et donc pas seulement notre index de départ), on enlève
+    #   le dernier index de la combinaison et on retente de trouver une combinaison sans celui-ci.
+    # si il n'y a plus qu'un seul index dans notre combinaison, on l'append aux combinaisons déjà trouvée
+    # et on termine la fonction take_index, ce qui va ensuite nous faire terminer une boucle
     print("take_index est appelée")
+    print("le current_amount est de " + str(current_amount))
     # le problème actuel est qu'il faudrait qu'au début de chaque original_combination, il y ait notre index de base, peu faire ça avant
-    if index_exists(cost_list, index+1) and (current_amount + cost_list[index+1] <= 500):
+    if index_exists(list_of_costs, index+1) and (current_amount + list_of_costs[index+1] <= 500):
         # si il existe un index suivant (qu'on n'est donc pas à la fin de la liste) et que l'ajout du coût de son action
         # ne fait pas dépasser notre coût maximal d'achat, alors on achète cette action, et on l'ajoute à notre combinaison
         # actuelle, puis on relance la fonction pour voir si on peut encore rajouter une action à notre portefeuille
-        current_amount += cost_list[index+1]
+        current_amount += list_of_costs[index+1]
         original_combination.append(index+1)
         print("la première sorte de take_index est appelée")
-        print("le current_amount est de " + str(current_amount))
-        return take_index(index+1, current_amount, max_amount, original_combination)
+        return take_index(index+1, list_of_costs, current_amount, max_amount, original_combination, total_combinations)
         
-    elif index_exists(cost_list, index+2):
+    elif index_exists(list_of_costs, index+2):
         # si l'ajout du coût de l'action du prochain index fait dépasser le montant maximum, on vérifie si on peut
         # sauter un index (càd si ce n'était pas le dernier élément de la liste) et si c'est le cas on relance la fonction
         # pour voir si on peut rajouter cette action à notre portefeuille
         print("la deuxième sorte de take_index est appelée")
-        print("le current_amount est de " + str(current_amount))
-        return take_index(index+1, current_amount, max_amount, original_combination)
+        return take_index(index+1, list_of_costs, current_amount, max_amount, original_combination, total_combinations)
         
-    print("une fonction take_index globale s'est terminée")
-    print("le current_amount est de " + str(current_amount))
-    return original_combination
+    if len(original_combination >= 2):
+        total_combinations = total_combinations + original_combination
+        index_to_switch = original_combination[-1]
+        if index_exists(list_of_costs, index_to_switch + 1):
+            current_amount -= list_of_costs[index_to_switch]
+            original_combination.pop()
+            new_list_start = list_of_costs[0:index_to_switch]
+            switched_cost = max_amount + 1
+            new_list_end = list_of_costs[index_to_switch+1:-1]
+            new_list_start.append(switched_cost)
+            new_list = new_list_start + new_list_end
+            return take_index(index, new_list, current_amount, max_amount, original_combination, total_combinations)
+        else:
+            current_amount -= list_of_costs[index_to_switch]
+            original_combination.pop()
+            new_list_start = list_of_costs[0:index_to_switch]
+            switched_cost = max_amount + 1
+            new_list_start.append(switched_cost)
+            new_list = new_list_start 
+            return take_index(index, new_list, current_amount, max_amount, original_combination, total_combinations)
+        # la question se pose quand même de si le dernier nombre rajouté à la combinaison est aussi le dernier
+        # nombre de la liste
+        # autre question également de 
+        
+    else:
+        # alors on append juste notre index à la liste de toutes les combinaisons 
+        # puis on fait en sorte de terminer take_index
+        total_combinations = total_combinations + original_combination
+        print("une fonction take_index globale s'est terminée")
+        print("le current_amount est de " + str(current_amount))
+        return total_combinations
+
+        # maintenant qu'on a pop l'action qu'on ne veut plus acheter, il faut faire en sorte de refaire un
+        # take_index mais sans utiliser cette action, en l'enlevant peut-être, ou en disant dans les arguments
+        # qu'on voudra passer cet index si jamais on tombe dessus
+        # Il faudrait aussi en fait éviter de réajouter la combinaison trouvée actuelle au total des combinaisons
+        # si jamais on a pop une action et qu'on a refait un tour sans trouver d'autre action par laquelle la
+        # remplacer
+        # pourrait possiblement mettre un nouveau paramètre à take index en mettant la liste cost_list dedans,
+        # et ici dans le cas présent on pourrait remplacer cette liste par une nouvelle liste comportant
+        # toute les actions jusqu'à notre index qui clôt cette liste, puis remplacer le coût de cette index par
+        # le max_amount + 1 puis rajouter le reste de la liste, et repasser la fonction take_index mais avec
+        # cette nouvelle liste ensuite.
+    # quand on arrive à la fin d'une combinaison
+    # si il y a plusieurs index dans cette combinaison (et donc pas seulement notre index de départ), on enlève
+    #   le dernier index de la combinaison et on retente de trouver une combinaison sans celui-ci.
+    # si il n'y a plus qu'un seul index dans notre combinaison, on l'append aux combinaisons déjà trouvée
+    # et on termine la fonction take_index, ce qui va ensuite nous faire terminer une boucle
+        
 
 
 max_amount = 500
@@ -108,11 +158,11 @@ for index in range(len(cost_list)):
     combination_start = [index]
     # le problème actuel est que take_index ne fonctionne qu'une fois, càd qu'elle ne va return qu'une seule combinaison
     # et pas toutes les combinaisons possibles avec un seul index
-    index_combinations = take_index(index, current_amount + cost_list[index], max_amount, combination_start)
+    index_combinations = take_index(index, cost_list, current_amount + cost_list[index], max_amount, combination_start)
     # print("la liste comprenant toutes les combinaisons d'un seul index est: \n")
     # print(index_combinations)
     total_combinations = total_combinations + index_combinations
-    print("ON A ATTEINT LA FIN DE LA PREMIERE BOUCLE")
+    print("ON A ATTEINT LA FIN DE LA BOUCLE n°" + str(index+1))
 
 print("toutes les combinaisons possibles sont :")
 print(total_combinations)
