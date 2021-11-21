@@ -122,22 +122,29 @@ def add_combinations(index, list_of_costs, list_of_profits, max_amount,\
     # pour chaque action entre la 1ere et la derniere action, on va effectuer la boucle qu'on a déjà
     # construite. A la fin d'une boucle, on va juste commencer celle-ci un avant-dernier item plus
     # près.
+    if len(original_copy) > 2:
+        while len(original_copy) > 2:
+            print("while loop")
+            for item in range(len(original_copy)-2):
+                copy_throwable = original_copy[:]
+                copy_length = len(copy_throwable)
 
-    copy_throwable = original_combination[:]
-    copy_length = len(copy_throwable)
-
-
-    for action in range(copy_length):
-        if len(copy_throwable) <= 2:
-            print("top")
-            break
-        else:
-            print(len(copy_throwable))
-            copy_throwable.pop(-2)
-            copy_2 = copy_throwable[:]
-            current_best = return_best(current_best, copy_2, list_of_costs, \
-                list_of_profits, max_amount)
-            print(current_best)
+                last_index_starter = 2
+                for action in range(copy_length):
+                    if len(copy_throwable) <= last_index_starter:
+                        # print("top")
+                        break
+                    else:
+                        print(len(copy_throwable))
+                        copy_throwable.pop(-last_index_starter)
+                        copy_2 = copy_throwable[:]
+                        current_best = return_best(current_best, copy_2, list_of_costs, \
+                            list_of_profits, max_amount)
+                        # print(current_best)
+                last_index_starter += 1
+            original_copy.pop()
+    else:
+        pass
 
 
     # En gardant notre dernier-index ET celui d'avant, on fait la même chose etc.
@@ -153,7 +160,7 @@ best_combination = []
 #1ere boucle récursive
 current_amount = 0
 
-for index in range(len(cost_list)):
+for index in range(len(cost_list[0:2])):
     combination_start = [index]
     
     best_combination = add_combinations(index, cost_list, benefit_list, max_amount, best_combination)
