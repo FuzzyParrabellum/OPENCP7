@@ -12,6 +12,7 @@ et afficher un meilleur investissement.
 
 # Import des librairies
 import csv
+import time
 
 
 # Lire les informations du fichier csv
@@ -176,34 +177,21 @@ def add_combinations(index, list_of_costs, list_of_profits, max_amount,\
             index_to_add = element + 2
         #         # C'est à dire juste après notre 1ere condition
             # ici on ajoute l'index sur lequel devant toutes les combinaisons que l'on a déjà
-            loop = 0
             for combination in combinations:
-                # print(f"Au début du for combinations={combinations}")
                 # on vérifie ci-dessous que combination est bien une combinaison et pas un index seul
                 if isinstance(combination, int) == True:
-                    # possiblement un problème avec ce qu'il y a dans cette 1ere condition
-                    # comparée à celle qu'il y a en-dessous
                     current_list.append([action_index[-index_to_add], combination])
-                    # print(f'111current_list ={current_list}')
                     current_best = return_best(current_best, combination, list_of_costs, \
                     list_of_profits, max_amount) 
                 else:
-                    # loop += 1
-                    # print(f'LOOP n°{loop}')
-                    # print(f'len(combinations) = {len(combinations)}')
-                    # print(combinations)
-                    # print(f'Juste avant insert 222 combination={combination}')
+                    
                     new_combination = [action_index[-index_to_add]] + combination 
                     current_list.append(new_combination)
-                    # print(f'Juste après l insert combination= {combination}')
-                    # print(f'222current_list ={current_list}')
+                    
                     current_best = return_best(current_best, new_combination, list_of_costs, \
                     list_of_profits, max_amount) 
-            # print('HELLOHELLOHELLOHELLOHELLOHELLO')
             # ici on ajoute l'index seul à nos combinaisons
-            # combinations = current_list + combinations
             combinations.insert(0, [action_index[-index_to_add]])
-            # print(f"combinations = {combinations}")
             current_best = return_best(current_best, [action_index[-index_to_add]], list_of_costs, \
                 list_of_profits, max_amount) 
             # ici on rajoute toutes les combinaisons trouvées de current_list dans notre
@@ -288,9 +276,9 @@ def add_combinations(index, list_of_costs, list_of_profits, max_amount,\
 
 max_amount = 500
 best_combination = []
-#1ere boucle récursive
 current_amount = 0
 
+start = time.perf_counter()
 for index in range(len(cost_list)):
     combination_start = [index]
     
@@ -305,6 +293,8 @@ for index in range(len(cost_list)):
 print(f"Le meilleur portefeuille d'actions est {best_combination}")
 print(f"Son return est de {calculate_investment_return(best_combination[0])}")
 
+end = time.perf_counter()
+print(f"Le temps d'exécution de la fonction bruteforce3.py est de {end - start}")
 
 # Afficher le résultat
 # main()

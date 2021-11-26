@@ -22,25 +22,54 @@ limite.
 
 # Import des librairies
 import csv
+import time
 
 
 # Lire les informations du fichier csv
 cost_list = []
 benefit_list = []
+action_names = []
 
-with open('./InvestInformation.csv') as csv_file:
-    csv_reader = csv.reader(csv_file, delimiter=';')
-    line_count = 0
-    for row in csv_reader:
-        if line_count == 0:
-            # print(f'Column names are {", ".join(row)}')
-            line_count += 1
-        else:
-            print(f'\t{row[0]} euros of cost for {row[1]} of benefit')
-            cost_list.append(int(row[0]))
-            benefit_list.append(float(row[1].replace(",", ".")))
-            line_count += 1
-    # print(f'Processed {line_count} lines.')
+profit_format = ''
+
+# file_to_open = './dataset1_Python+P7.csv'
+file_to_open = './InvestInformation.csv'
+
+if file_to_open == './InvestInformation.csv':
+    print("The profit is written as percentage")
+    profit_format = 'percentage'
+    with open(file_to_open) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=';')
+        line_count = 0
+        for row in csv_reader:
+            if line_count == 0:
+                line_count += 1
+            else:
+                cost_list.append(int(row[0]))
+                benefit_list.append(float(row[1].replace(",", ".")))
+                line_count += 1
+else:
+    print("The profit is written as is")
+    profit_format = 'as_is'
+    with open(file_to_open) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count == 0:
+                # print(f'Column names are {", ".join(row)}')
+                line_count += 1
+            else:
+                if float(row[1]) > 0:
+                    action_names.append(row[0])
+                    cost_list.append(float(row[1]))
+                    benefit_list.append(float(row[2].replace(",", ".")))
+                    line_count += 1
+                else:
+                    action_names.append(row[0])
+                    cost_list.append(float(row[1]))
+                    benefit_list.append(int(0))
+                    line_count += 1
+
 
 def index_exists(list, index):
     if index < len(list):
@@ -49,7 +78,7 @@ def index_exists(list, index):
         return False
 
 
-def Gloutonic(list1, list2, max_capacity):
+def Gloutonic(list1, list2, format, max_capacity):
     new_list = []
     # On veut remplir new_list avec la liste d'actions optimales
     # pour se faire on doit faire un rapport de cout/weight pour chaque action
@@ -58,7 +87,15 @@ def Gloutonic(list1, list2, max_capacity):
     # 1ere phase de gloutonic ou on sort les actions par leur rapport cout*intéret
     for index in range(len(list1)):
         # Pour chaque index du nombre d'éléments dans la list d'actions
-        rapport = [list1[index]*list2[index], index, list1[index]]
+        if list1[index] == 0:
+            continue
+
+        if format == 'percentage':
+            rapport = [list1[index]*list2[index], index, list1[index]]
+
+        else:
+            rapport = [list2[index]/list1[index], index, list1[index]]
+
         if len(new_list) == 0:
             new_list.append(rapport)
 
@@ -80,7 +117,7 @@ def Gloutonic(list1, list2, max_capacity):
                             break
                     # si notre rapport se situe entre un élément et l'élément d'après, alors
                     # si on est en fin de liste, pas besoin de continuer et faire index_exists
-    print(f'La new_list finale est égale à {new_list}')
+    # print(f'La new_list finale est égale à {new_list}')
 
     # 2e phase, on va maintenant remplir notre portefeuille d'actions en commençant par les actions
     # ayant le meilleur indice (pour se faire on va retourner la liste précédente) et en voyant 
@@ -90,20 +127,43 @@ def Gloutonic(list1, list2, max_capacity):
     actions_bought = []
     for action in action_list:
         if current_capacity + action[2] <= max_capacity:
+            # print(f'current_capacity={current_capacity}')
+            # print(f'actions[1]={action[1]}')
             current_capacity += action[2]
             actions_bought.append(action[1])
-            print(f'action[0] = {action[0]}')
 
-    return print(f'The current_capacity is {current_capacity} for the actions_indexes {actions_bought}')
+    if format == 'percentage':
+        return print(f'The current_capacity is {current_capacity} for the combination of actions {actions_bought}')
+    
+    else:
+        names_list = []
+        for action in actions_bought:
+            names_list.append(action_names[action])
+        
+        return print(f'The current_capacity is {current_capacity} for the combination of actions {names_list}')
+
+    # important, on doit ajouter +2 à chaque index pour pouvoir lire ceux-ci directement
+    # comme on doit suppr les deux premières lignes du fichier csv
+    # for index in range(len(actions_bought)):
+    #     actions_bought[index] += 2
+
+    # return print(f'The current_capacity is {current_capacity} for the actions_indexes {actions_bought} \
+    #             and the names {names_list}')
+
+
 
         
 
 
 
 def main():
-    Gloutonic(cost_list, benefit_list, 500)
+    Gloutonic(cost_list, benefit_list, profit_format, 500)
 
+start = time.perf_counter()
 main()
+end = time.perf_counter()
+
+print(f"Le temps d'exécution de la fonction OptimizedV2.py est de {end - start}")
 
 """
 téléch template google slide
