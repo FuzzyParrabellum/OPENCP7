@@ -24,9 +24,9 @@ action_names = []
 profit_format = ''
 
 # On indique ici le fichier dataset à ouvrir
-# file_to_open = './dataset2_Python+P7.csv'
+file_to_open = './dataset2_Python+P7.csv'
 # file_to_open = './dataset1_Python+P7.csv'
-file_to_open = './InvestInformation.csv'
+# file_to_open = './InvestInformation.csv'
 
 
 if file_to_open == './InvestInformation.csv':
@@ -58,6 +58,11 @@ else:
                     cost_list.append(float(row[1]))
                     benefit_list.append(float(row[2].replace(",", ".")))
                     line_count += 1
+                elif float(row[1]) < 0:
+                    action_names.append(row[0])
+                    cost_list.append(abs(float(row[1])))
+                    benefit_list.append(float(row[2].replace(",", ".")))
+                    line_count += 1
                 else:
                     action_names.append(row[0])
                     cost_list.append(float(row[1]))
@@ -74,6 +79,8 @@ def index_exists(list, index):
         return False
 
 def calculate_investment_return(combination, format):
+    """Fonction permettant de calculer le bénéfice rapporté par une combinaison
+    d'actions."""
     total = 0
     if format == 'percentage':
         for index in combination:
@@ -129,6 +136,8 @@ def Gloutonic(list1, list2, format, max_capacity):
     for action in action_list:
         if current_capacity + action[2] <= max_capacity:
             current_capacity += action[2]
+            # la ligne ci-dessous permet de voir le détail des ajouts
+            # print(f"action added cost is {action[2]}, index is {action[1]}, rapport is {action[0]}")
             actions_bought.append(action[1])
 
     total_profit = calculate_investment_return(actions_bought, format)

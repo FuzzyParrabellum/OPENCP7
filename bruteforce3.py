@@ -88,6 +88,8 @@ def take_first_combination(index, list_of_costs, list_of_profits):
     return original_combination, current_amount, current_profit
 
 def calculate_investment_return(combination):
+    """Fonction permettant de calculer le bénéfice rapporté par une combinaison
+    d'actions."""
     total = 0
     for index in combination:
         total += (cost_list[index]*benefit_list[index])
@@ -96,14 +98,9 @@ def calculate_investment_return(combination):
         
 def add_combinations(index, list_of_costs, list_of_profits, max_amount,\
                      best_combination = []):
-    
-    # à partir d'un index d'une liste donnée, on va chercher toutes les combinaisons possibles
-    # à partir du reste des index de cette liste, ces combinaisons ne devant pas dépasser le maximum
-    # autorisé d'achat symbolisé par la variable max_amount. 
-
-    # condition pour vérifier qu'on a bien une liste et un coût maximal
-    # if len(list_of_costs) == 0 or len(list_of_profits) == 0 or max_amount == 0:
-    #     return 0
+    """ à partir d'un index d'une liste donnée, on va chercher toutes les combinaisons possibles
+    à partir du reste des index de cette liste, ces combinaisons ne devant pas dépasser le maximum
+    autorisé d'achat symbolisé par la variable max_amount. """
 
     # On va d'abord à l'aide d'une première fonction remplir notre portefeuille d'actions d'une
     # première combinaison à l'aide de la fonction take_first_combination
@@ -118,13 +115,6 @@ def add_combinations(index, list_of_costs, list_of_profits, max_amount,\
         current_best = return_best(best_combination, original_combination, list_of_costs, \
                 list_of_profits, max_amount)  
 
-    original_copy = original_combination[:]
-    
-    # On rajoute notre combinaison originale à la liste des combinaisons
-    # En gardant notre dernier index, on enlève-ensuite l'avant dernier index, 
-    # on renregistre, puis l'avant-avant
-    # dernier etc. jusqu'à ce qu'on arrive à l'index d'où part notre combinaison
-
     # Pour chaque élément de notre original_combination - 1, on va effectuer la fonction A
     # BOUCLE FONCTION A qu'on effectue len(original_combination) - 1:
         # On ne rajoute aucune des deux dernières valeurs 
@@ -132,15 +122,12 @@ def add_combinations(index, list_of_costs, list_of_profits, max_amount,\
         # On rajoute seulement l'avant-dernière valeur
         # On rajoute les deux dernières valeurs
     action_index = [i for i in range(len(cost_list))]
-    # Avec toute cette liste qu'on a déjà, on va faire exactement la même liste mais en rajoutant
-    # l'index juste avant et ainsi de suite
     before_stop = 0
     combinations = []
     for element in range(len(original_combination) - 1):
         before_stop += 1
         current_list = []
         if element == 0:
-            # alors rien, c'est le premier truc
             current_list.append([action_index[-1]])
             current_list.append([action_index[-2]])
             current_list.append([action_index[-1], action_index[-2]])
@@ -151,7 +138,6 @@ def add_combinations(index, list_of_costs, list_of_profits, max_amount,\
             
         else:
             index_to_add = element + 2
-        #         # C'est à dire juste après notre 1ere condition
             # ici on ajoute l'index sur lequel devant toutes les combinaisons que l'on a déjà
             for combination in combinations:
                 # on vérifie ci-dessous que combination est bien une combinaison et pas un index seul
